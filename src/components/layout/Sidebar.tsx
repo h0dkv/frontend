@@ -23,7 +23,21 @@ export default function Sidebar() {
     return (
         <aside className="w-72 border-r border-zinc-800 bg-zinc-900">
             <div className="p-8">
-                <h1 className="text-3xl font-bold">Aether</h1>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600 text-2xl font-bold">
+                        A
+                    </div>
+
+                    <div>
+                        <h1 className="text-2xl font-bold">
+                            Aether
+                        </h1>
+
+                        <p className="text-xs text-zinc-500">
+                            Developer Platform
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <nav className="space-y-2 px-4">
