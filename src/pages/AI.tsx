@@ -1,33 +1,121 @@
-import { Send } from "lucide-react";
+import { useState } from "react";
+import ChatSidebar from "../components/ai/ChatSidebar";
+import ChatWindow from "../components/ai/ChatWindow";
+import ChatInput from "../components/ai/ChatInput";
+import type { ChatMessage } from "../types/chat";
+import type { Conversation } from "../types/conversation";
+import { sendChatMessage } from "../services/chat";
 
 export default function AI() {
+  const [conversations, setConversations] = useState<Conversation[]>([
+    {
+      id: crypto.randomUUID(),
+      title: "New Chat",
+      messages: [
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: "👋 Hello! I'm Aether. What would you like to build today?",
+        },
+      ],
+    },
+  ]);
+
+  const [activeConversationId, setActiveConversationId] = useState(
+    conversations[0].id
+  );
+
+  const activeConversation =
+    conversations.find((c) => c.id === activeConversationId)!;
+
+  function createConversation() {
+    const conversation: Conversation = {
+      id: crypto.randomUUID(),
+      title: `Chat ${conversations.length + 1}`,
+      messages: [
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: "👋 New conversation started.",
+        },
+      ],
+    };
+
+    setConversations((prev) => [...prev, conversation]);
+    setActiveConversationId(conversation.id);
+  }
+
+  async function sendMessage(text: string) {
+    if (!text.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      text,
+    };
+
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.id === activeConversationId
+          ? {
+              ...conversation,
+              messages: [...conversation.messages, userMessage],
+            }
+          : conversation
+      )
+    );
+
+    try {
+      const reply = await sendChatMessage(text);
+
+      const assistantMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        text: reply,
+      };
+
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === activeConversationId
+            ? {
+                ...conversation,
+                messages: [...conversation.messages, assistantMessage],
+              }
+            : conversation
+        )
+      );
+    } catch {
+      const assistantMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        text: "❌ Backend is unavailable.",
+      };
+
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === activeConversationId
+            ? {
+                ...conversation,
+                messages: [...conversation.messages, assistantMessage],
+              }
+            : conversation
+        )
+      );
+    }
+  }
+
   return (
-    <div className="flex h-full flex-col">
-      <h1 className="text-4xl font-bold">🤖 Aether AI</h1>
+    <div className="flex h-full gap-6">
+      <ChatSidebar
+        conversations={conversations}
+        activeId={activeConversationId}
+        onSelect={setActiveConversationId}
+        onNewChat={createConversation}
+      />
 
-      <p className="mt-2 text-zinc-400">
-        Your intelligent development assistant.
-      </p>
-
-      <div className="mt-8 flex-1 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-        <div className="space-y-4">
-          <div className="max-w-xl rounded-2xl bg-violet-600 p-4">
-            Hello, Hristian 👋
-            <br />
-            What would you like to build today?
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 flex gap-3">
-        <input
-          className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-4 outline-none focus:border-violet-500"
-          placeholder="Ask Aether anything..."
-        />
-
-        <button className="rounded-xl bg-violet-600 px-6 transition hover:bg-violet-500">
-          <Send />
-        </button>
+      <div className="flex flex-1 flex-col">
+        <ChatWindow messages={activeConversation.messages} />
+        <ChatInput onSend={sendMessage} />
       </div>
     </div>
   );
