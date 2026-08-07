@@ -1,16 +1,29 @@
-export async function sendChatMessage(message: string): Promise<string> {
-  const response = await fetch("http://localhost:3000/api/chat", {
+const API = "http://localhost:3000/api";
+
+export async function sendChatMessage(
+  message: string,
+  conversationId: string
+) {
+  const res = await fetch(`${API}/chat`, {
     method: "POST",
+
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ message }),
+
+    body: JSON.stringify({
+      message,
+      conversationId,
+    }),
   });
 
-  if (!response.ok) {
-    throw new Error("Backend error");
+  if (!res.ok) {
+    throw new Error(
+      `API Error ${res.status}: ${await res.text()}`
+    );
   }
 
-  const data = await response.json();
-  return data.reply;
+  const data = await res.json();
+
+  return data;
 }

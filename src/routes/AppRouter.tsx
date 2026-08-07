@@ -5,6 +5,7 @@ import MainLayout from "../layouts/MainLayout";
 import Dashboard from "../pages/Dashboard";
 import AI from "../pages/AI";
 import DevHub from "../pages/DevHub";
+import Project from "../pages/Project";
 import VirtualVarna from "../pages/VirtualVarna";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
@@ -17,6 +18,7 @@ export default function AppRouter() {
           <Route index element={<Dashboard />} />
           <Route path="ai" element={<AI />} />
           <Route path="devhub" element={<DevHub />} />
+          <Route path="projects/:id" element={<Project />} />
           <Route path="virtualvarna" element={<VirtualVarna />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
